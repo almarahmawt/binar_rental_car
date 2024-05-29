@@ -5,8 +5,10 @@
 
 const postController = require("./postController");
 const authController = require("./authController");
+const carsController = require("./carsController");
 
 module.exports = {
   postController,
-  authController
+  authController,
+  carsController,
 };
