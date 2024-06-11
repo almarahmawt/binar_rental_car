@@ -2,9 +2,12 @@ const express = require("express");
 const swaggerUi = require("swagger-ui-express");
 const YAML = require("yamljs");
 const controllers = require("../app/controllers");
+const cors = require("cors");
 
 const apiRouter = express.Router();
 const swaggerDocument = YAML.load('./openapi.yaml')
+
+apiRouter.use(cors())
 
 apiRouter.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -17,6 +20,7 @@ apiRouter.get("/api/v1/whoami",
   controllers.api.v1.authController.whoami);
 apiRouter.post("/api/v1/register", controllers.api.v1.authController.register);
 apiRouter.post("/api/v1/login", controllers.api.v1.authController.login);
+apiRouter.post("/api/v1/login/google", controllers.api.v1.authController.googleLogin);
 
 // route for cars
 apiRouter.get("/api/v1/cars", controllers.api.v1.carsController.list);

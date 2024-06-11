@@ -5,7 +5,7 @@
 const userService = require("../../../services/userService");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const SALT = 10
+const SALT = 10;
 
 function encryptPassword(password) {
     return new Promise((resolve, reject) => {
@@ -35,7 +35,7 @@ function checkPassword(encryptedPassword, password) {
     });
   }
 
-  function createToken(payload) {
+  async function createToken(payload) {
     return jwt.sign(payload, process.env.JWT_SIGNATURE_KEY || "Rahasia");
   }
 
@@ -93,6 +93,33 @@ module.exports = {
       });
   },
 
+  async googleLogin (req, res) {
+    try{
+      const body = req.body.payload
+      const email = body.email.toLowerCase();   
+      const encryptedPassword = await encryptPassword(body.jti);
+
+      const user = await userService.findOne(email);
+
+      if (!user) {
+        user = await userService.create({
+          email,
+          encryptedPassword
+        });
+      }      
+
+      const token = await createToken({
+        id: user.id,
+        email: user.email
+      });
+  
+      res.status(201).json({ token });
+    } catch {
+      res.status(401).json({ message: "Unauthorized." });
+    }
+  },
+
+
   async whoami(req, res){
     res.status(200).json(req.user);
   },
@@ -114,6 +141,6 @@ module.exports = {
           message: "Unauthorized",
         });
       }
-  }
+  },
 
 };
